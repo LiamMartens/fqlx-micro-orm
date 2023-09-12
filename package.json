@@ -1,9 +1,17 @@
 {
   "name": "fqlx-micro-orm",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.0-beta.1",
   "description": "FQLx Micro ORM for a more type-safe way of interacting with the FQLx APIs",
-  "main": "index.js",
+  "types": "./lib/index.d.ts",
+  "module": "./lib/index.js",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
+      "default": "./lib/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p ."
   },
