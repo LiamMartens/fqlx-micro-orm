@@ -17,7 +17,7 @@ export function query<T extends FQLEntry>(
       : entry;
   const [query, args] = actualValue.toFQL();
   return client.query<ValueType extends QueryValue ? ValueType : never>(
-    fql`${query}`,
+    fql([`${query}`]),
     {
       ...options,
       arguments: { ...args, ...options?.arguments },
