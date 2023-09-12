@@ -52,15 +52,16 @@ export class Projection<
     SelectedValue extends DeepValue<ActualItemType<In>, Subkey> = DeepValue<
       ActualItemType<In>,
       Subkey
-    >
+    >,
+    MergedSubprojections extends Subprojections & {
+      [key in K]: SelectedValue;
+    } = Subprojections & {
+      [key in K]: SelectedValue;
+    }
   >(
     key: K,
     path: Subkey
-  ) => {
-    type MergedSubprojections = Subprojections & {
-      [key in K]: SelectedValue;
-    };
-
+  ): Projection<In, Keys, MergedSubprojections> => {
     const proj = new Projection<In, Keys, MergedSubprojections>(
       this.pick,
       this.path,
@@ -84,21 +85,28 @@ export class Projection<
     >,
     CollectionName extends ExtractRefCollName<
       ActualItemType<SelectedValue>
-    > = ExtractRefCollName<ActualItemType<SelectedValue>>
+    > = ExtractRefCollName<ActualItemType<SelectedValue>>,
+    PickedValue extends Pick<TypeOf<C['completeSchema']>, PickKeys> = Pick<
+      TypeOf<C['completeSchema']>,
+      PickKeys
+    >,
+    MergedSubprojections extends Subprojections & {
+      [key in K]: OptionalIf<
+        SelectedValue,
+        ArrayIf<NonNullable<SelectedValue>, PickedValue | null>
+      >;
+    } = Subprojections & {
+      [key in K]: OptionalIf<
+        SelectedValue,
+        ArrayIf<NonNullable<SelectedValue>, PickedValue | null>
+      >;
+    }
   >(
     key: K,
     path: Subkey,
     keys: PickKeys[],
     collection: C
-  ) => {
-    type PickedValue = Pick<TypeOf<C['completeSchema']>, PickKeys>;
-    type MergedSubprojections = Subprojections & {
-      [key in K]: OptionalIf<
-        SelectedValue,
-        ArrayIf<NonNullable<SelectedValue>, PickedValue | null>
-      >;
-    };
-
+  ): Projection<In, Keys, MergedSubprojections> => {
     const proj = new Projection<In, Keys, MergedSubprojections>(
       this.pick,
       this.path,
@@ -122,13 +130,8 @@ export class Projection<
       SelectedValue,
       NonNullable<SelectedValue>
     > = OptionalIf<SelectedValue, NonNullable<SelectedValue>>,
-    PickKeys extends KeysOfItems<NormalSelectedValue> = KeysOfItems<NormalSelectedValue>
-  >(
-    key: K,
-    path: Subkey,
-    pick: PickKeys[]
-  ) => {
-    type MergedSubprojections = Subprojections & {
+    PickKeys extends KeysOfItems<NormalSelectedValue> = KeysOfItems<NormalSelectedValue>,
+    MergedSubprojections extends Subprojections & {
       [key in K]: ArrayIf<
         NonNullable<NormalSelectedValue>,
         OptionalIf<
@@ -136,8 +139,20 @@ export class Projection<
           Pick<NonNullable<NormalSelectedValue>, PickKeys>
         >
       >;
-    };
-
+    } = Subprojections & {
+      [key in K]: ArrayIf<
+        NonNullable<NormalSelectedValue>,
+        OptionalIf<
+          NormalSelectedValue,
+          Pick<NonNullable<NormalSelectedValue>, PickKeys>
+        >
+      >;
+    }
+  >(
+    key: K,
+    path: Subkey,
+    pick: PickKeys[]
+  ): Projection<In, Keys, MergedSubprojections> => {
     const proj = new Projection<In, Keys, MergedSubprojections>(
       this.pick,
       this.path,
@@ -163,7 +178,10 @@ export class Projection<
       .join(',');
 
     return [
-      `${superQuery}${this.path ? `.${this.path}` : ''}{${[pickFields, subqueryFields]
+      `${superQuery}${this.path ? `.${this.path}` : ''}{${[
+        pickFields,
+        subqueryFields,
+      ]
         .filter(Boolean)
         .join(',')}}`,
       Object.assign(superArgs, this.arguments),

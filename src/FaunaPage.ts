@@ -28,7 +28,9 @@ export class FaunaPage<
     this.operation = operation;
   }
 
-  public project = <K extends KeysOfItems<T>>(pick: K[]) => {
+  public project = <K extends KeysOfItems<T>>(
+    pick: K[]
+  ): Projection<T[], K, {}> => {
     return new Projection<T[], K, {}>(pick).link(this);
   };
 
