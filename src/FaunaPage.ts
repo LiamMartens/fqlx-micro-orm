@@ -28,10 +28,10 @@ export class FaunaPage<
     this.operation = operation;
   }
 
-  public project = <K extends KeysOfItems<T>>(
+  public project = <K extends KeysOfItems<this['fqlType']>>(
     pick: K[]
-  ): Projection<T[], K, {}> => {
-    return new Projection<T[], K, {}>(pick).link(this);
+  ): Projection<this['fqlType'][], K, {}> => {
+    return new Projection<this['fqlType'][], K, {}>(pick).link(this);
   };
 
   public toFQL(): [string, QueryValueObject] {
