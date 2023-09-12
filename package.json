@@ -1,0 +1,35 @@
+{
+  "name": "fqlx-micro-orm",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "FQLx Micro ORM for a more type-safe way of interacting with the FQLx APIs",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -p ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:LiamMartens/fqlx-micro-orm.git"
+  },
+  "homepage": "https://github.com/LiamMartens/fqlx-micro-orm",
+  "bugs": {
+    "url": "https://github.com/LiamMartens/fqlx-micro-orm/issues"
+  },
+  "keywords": ["fauna", "fql", "fqlx", "orm", "typescript", "typesafe"],
+  "author": "Liam Martens <hi@liammartens.com>",
+  "license": "MIT",
+  "files": ["lib"],
+  "dependencies": {
+    "fauna-x-schemas": "^1.2.0"
+  },
+  "peerDependencies": {
+    "zod": "^3.0.0",
+    "fauna": "^1.0.0"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.1",
+    "fauna": "^1.2.0",
+    "typescript": "^5.2.2",
+    "zod": "^3.22.2"
+  }
+}

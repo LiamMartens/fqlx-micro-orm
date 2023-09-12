@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "lib",
+    "declaration": true,
+    "target": "ES2015",
+    "lib": ["ESNext"],
+    "strict": true,
+    "strictNullChecks": true,
+    "noImplicitAny": true,
+    "skipDefaultLibCheck": true,
+    "types": ["bun-types"]
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
+}
