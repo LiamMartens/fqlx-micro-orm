@@ -65,7 +65,7 @@ export abstract class Collection<
     return [`${superQuery}${this.name}`, superArgs];
   };
 
-  public all = () => {
+  public all = (): FaunaSet<Schema, Name, Collection<Schema, Name>> => {
     const set = new FaunaSet<Schema, Name, Collection<Schema, Name>>(
       this,
       new FaunaMethodCall('all')
@@ -73,7 +73,9 @@ export abstract class Collection<
     return set.link(this);
   };
 
-  public where = (body: string) => {
+  public where = (
+    body: string
+  ): FaunaSet<Schema, Name, Collection<Schema, Name>> => {
     const set = new FaunaSet<Schema, Name, Collection<Schema, Name>>(
       this,
       new FaunaMethodCall('where', body)
@@ -84,7 +86,7 @@ export abstract class Collection<
   public index = <T extends keyof Indexes>(
     name: T extends string ? T : never,
     ...args: Indexes[T]
-  ) => {
+  ): FaunaSet<Schema, Name, Collection<Schema, Name>> => {
     const set = new FaunaSet<Schema, Name, Collection<Schema, Name>>(
       this,
       new FaunaMethodCall(name, ...args)
@@ -92,11 +94,14 @@ export abstract class Collection<
     return set.link(this);
   };
 
-  public firstWhere = (body: string) => {
-    const doc = new FaunaDocument(
-      this,
-      new FaunaMethodCall('firstWhere', body)
-    );
+  public firstWhere = (
+    body: string
+  ): FaunaDocument<Schema, Name, Collection<Schema, Name, Indexes>> => {
+    const doc = new FaunaDocument<
+      Schema,
+      Name,
+      Collection<Schema, Name, Indexes>
+    >(this, new FaunaMethodCall('firstWhere', body));
     return doc.link(this);
   };
 
