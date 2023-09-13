@@ -51,7 +51,7 @@ import { query } from 'fqlx-micro-orm';
 
 const client = new Client();
 const user = new PersonCollection()
-  .byFirstName('John')
+  .index('byFirstName', 'John')
   .project(['firstName', 'lastName'])
   .resolve('address', 'address', ['street', 'zip'], new AddressCollection());
 
