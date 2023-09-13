@@ -16,6 +16,7 @@ export function query<T extends FQLEntry>(
       ? new FaunaPage(entry.collection).link(entry)
       : entry;
   const [query, args] = actualValue.toFQL();
+
   return client.query<ValueType extends QueryValue ? ValueType : never>(
     fql([`${query}`]),
     {

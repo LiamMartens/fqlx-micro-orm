@@ -49,6 +49,11 @@ export class FaunaSet<
     this.operation = operation;
   }
 
+  public forceOperation = () => {
+    this.operation.forced();
+    return this;
+  }
+
   public paginate = (count?: number): FaunaPage<Schema, Name, C> => {
     type DocType = NonNullable<FaunaDocument<Schema, Name, C>['fqlType']>;
     const page = new FaunaPage<Schema, Name, C>(

@@ -29,12 +29,17 @@ export class FaunaDocument<
     throw new Error('Only for typing');
   }
 
-  public exists = () => {
+  public forceOperation = () => {
+    this.operation.forced();
+    return this;
+  }
+
+  public exists = (): FaunaMethodCall<boolean> => {
     const call = new FaunaMethodCall<boolean>('exists');
     return call.link(this);
   };
 
-  public delete = () => {
+  public delete = (): FaunaNullDocument<Schema, Name, C> => {
     const doc = new FaunaNullDocument<Schema, Name, C>(
       this.collection,
       new FaunaMethodCall('delete')
@@ -42,11 +47,11 @@ export class FaunaDocument<
     return doc.link(this);
   };
 
-  public replace = <K extends string>(data: {
+  public replace = <K extends string = 'data'>(data: {
     [key in K]: TypeOf<Schema>;
-  }) => {
+  }): FaunaDocument<Schema, Name, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument(
+    const doc = new FaunaDocument<Schema, Name, C>(
       this.collection,
       new FaunaMethodCall('replace', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
@@ -55,11 +60,11 @@ export class FaunaDocument<
     return doc.link(this);
   };
 
-  public replaceData = <K extends string>(data: {
+  public replaceData = <K extends string = 'data'>(data: {
     [key in K]: TypeOf<Schema>;
-  }) => {
+  }): FaunaDocument<Schema, Name, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument(
+    const doc = new FaunaDocument<Schema, Name, C>(
       this.collection,
       new FaunaMethodCall('replaceData', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
@@ -68,11 +73,11 @@ export class FaunaDocument<
     return doc.link(this);
   };
 
-  public update = <K extends string>(data: {
+  public update = <K extends string = 'data'>(data: {
     [key in K]: Partial<TypeOf<Schema>>;
-  }) => {
+  }): FaunaDocument<Schema, Name, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument(
+    const doc = new FaunaDocument<Schema, Name, C>(
       this.collection,
       new FaunaMethodCall('update', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
@@ -81,9 +86,9 @@ export class FaunaDocument<
     return doc.link(this);
   };
 
-  public updateData = <K extends string>(data: {
+  public updateData = <K extends string = 'data'>(data: {
     [key in K]: Partial<TypeOf<Schema>>;
-  }) => {
+  }): FaunaDocument<Schema, Name, C> => {
     const variableKey = Object.keys(data)[0] as K;
     const doc = new FaunaDocument(
       this.collection,
@@ -96,7 +101,7 @@ export class FaunaDocument<
 
   public project = <K extends KeysOfItems<TypeOf<C['completeSchema']>>>(
     pick: K[]
-  ) => {
+  ): Projection<TypeOf<C['completeSchema']> | null, K, {}> => {
     type ObjectType = TypeOf<C['completeSchema']> | null;
     return new Projection<ObjectType, K, {}>(pick).link(this);
   };

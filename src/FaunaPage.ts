@@ -28,6 +28,11 @@ export class FaunaPage<
     this.operation = operation;
   }
 
+  public forceOperation = () => {
+    this.operation?.forced();
+    return this;
+  }
+
   public project = <K extends KeysOfItems<this['fqlType']>>(
     pick: K[]
   ): Projection<this['fqlType'][], K, {}> => {
