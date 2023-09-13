@@ -21,6 +21,9 @@ class PersonCollection extends Collection<
 
 test('Collection.all', () => {
   const collection = new PersonCollection();
+  const aa = collection.byId('awd').update({
+    data: { firstName: '' },
+  });
   const all = collection.all();
   expect(all.toFQL()).toEqual(['Person.all()', {}]);
 

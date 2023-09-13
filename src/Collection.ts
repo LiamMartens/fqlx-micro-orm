@@ -1,5 +1,5 @@
-import { documentSchemaFactory } from 'fauna-x-schemas';
-import { TypeOf, ZodObject, ZodRawShape } from 'zod';
+import { DocumentSchema, documentSchemaFactory } from 'fauna-x-schemas';
+import { TypeOf, ZodObject, ZodRawShape, objectUtil } from 'zod';
 import { FQLEntry } from './FQLEntry.js';
 import { QueryValue, QueryValueObject, TimeStub } from 'fauna';
 import { FaunaSet } from './FaunaSet.js';
@@ -45,9 +45,19 @@ export abstract class Collection<
     throw new Error('Only used for typing');
   }
 
-  public get completeSchema() {
-    const result = documentSchemaFactory<Name>(this.name).extend(this.schema.shape);
-    return result;
+  public get completeSchema(): ZodObject<
+    objectUtil.extendShape<DocumentSchema<true, Name>['shape'], Schema['shape']>,
+    Schema['_def']['unknownKeys'],
+    Schema['_def']['catchall']
+  > {
+    const base: DocumentSchema<true, Name> = documentSchemaFactory<Name>(
+      this.name
+    );
+    return base.merge(this.schema) as ZodObject<
+      objectUtil.extendShape<DocumentSchema<true, Name>['shape'], Schema['shape']>,
+      Schema['_def']['unknownKeys'],
+      Schema['_def']['catchall']
+    >;
   }
 
   public toFQL = (): [string, QueryValueObject] => {

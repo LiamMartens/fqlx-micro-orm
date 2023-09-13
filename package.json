@@ -1,7 +1,7 @@
 {
   "name": "fqlx-micro-orm",
   "type": "module",
-  "version": "1.4.0",
+  "version": "1.4.0-beta.1",
   "description": "FQLx Micro ORM for a more type-safe way of interacting with the FQLx APIs",
   "types": "./lib/index.d.ts",
   "module": "./lib/index.js",
@@ -28,7 +28,7 @@
   "license": "MIT",
   "files": ["lib"],
   "dependencies": {
-    "fauna-x-schemas": "^1.2.0"
+    "fauna-x-schemas": "^1.4.0"
   },
   "peerDependencies": {
     "zod": "^3.0.0",
