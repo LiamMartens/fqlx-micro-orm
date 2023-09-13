@@ -1,5 +1,5 @@
 import { ZodObject, ZodRawShape, TypeOf } from 'zod';
-import { Collection } from './Collection.js';
+import { Collection, IndexesDefinition } from './Collection.js';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { FaunaDocument } from './FaunaDocument.js';
@@ -9,8 +9,9 @@ import { KeysOfItems, Projection } from './Projection.js';
 export class FaunaPage<
   Schema extends ZodObject<ZodRawShape>,
   Name extends string,
-  C extends Collection<Schema, Name>,
-  T extends QueryValue = NonNullable<FaunaDocument<Schema, Name, C>['fqlType']>
+  Indexes extends IndexesDefinition,
+  C extends Collection<Schema, Name, Indexes>,
+  T extends QueryValue = NonNullable<FaunaDocument<Schema, Name, Indexes, C>['fqlType']>
 > extends FQLEntry {
   public collection: C;
   public operation?: FaunaMethodCall<T[]>;

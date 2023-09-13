@@ -8,8 +8,8 @@ export function query<T extends FQLEntry>(
   entry: T,
   options?: QueryOptions
 ) {
-  type ValueType = T extends FaunaSet<infer S, infer N, infer C>
-    ? FaunaPage<S, N, C, T['fqlType'][number]>['fqlType']
+  type ValueType = T extends FaunaSet<infer S, infer N, infer I, infer C>
+    ? FaunaPage<S, N, I, C, T['fqlType'][number]>['fqlType']
     : T['fqlType'];
   const actualValue =
     entry instanceof FaunaSet

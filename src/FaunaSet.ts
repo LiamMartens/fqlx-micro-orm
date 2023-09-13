@@ -1,5 +1,4 @@
-import { ZodObject, ZodRawShape, TypeOf, Schema } from 'zod';
-import { Collection } from './Collection.js';
+import { ZodObject, ZodRawShape } from 'zod';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { FaunaDocument } from './FaunaDocument.js';
@@ -7,15 +6,18 @@ import { QueryValue, QueryValueObject } from 'fauna';
 import { KeysOfItems, Projection } from './Projection.js';
 import { FaunaPage } from './FaunaPage.js';
 import {
+  InferCollectionIndexes,
   InferCollectionName,
   InferCollectionSchema,
 } from './type-utils/CollectionInfer.js';
+import type { Collection, IndexesDefinition } from './Collection.js';
 
 export class FaunaSet<
   Schema extends ZodObject<ZodRawShape>,
   Name extends string,
-  C extends Collection<Schema, Name>,
-  T extends QueryValue = NonNullable<FaunaDocument<Schema, Name, C>['fqlType']>
+  Indexes extends IndexesDefinition,
+  C extends Collection<Schema, Name, Indexes>,
+  T extends QueryValue = NonNullable<FaunaDocument<Schema, Name, Indexes, C>['fqlType']>
 > extends FQLEntry {
   public collection: C;
   public operation: FaunaMethodCall<T[]>;
@@ -24,16 +26,17 @@ export class FaunaSet<
     throw new Error('Only used for typing');
   }
 
-  public static paginate<C extends Collection<any, any>>(
+  public static paginate<C extends Collection<any, any, any>>(
     collection: C,
     cursor: string,
     count: number
-  ): FaunaPage<InferCollectionSchema<C>, InferCollectionName<C>, C> {
+  ): FaunaPage<InferCollectionSchema<C>, InferCollectionName<C>, InferCollectionIndexes<C>, C> {
     type SchemaType = InferCollectionSchema<C>;
     type NameType = InferCollectionName<C>;
-    const page = new FaunaPage<SchemaType, NameType, C>(collection);
+    type IndexesType = InferCollectionIndexes<C>;
+    const page = new FaunaPage<SchemaType, NameType, IndexesType, C>(collection);
     return page.link(
-      new FaunaSet<SchemaType, NameType, C>(
+      new FaunaSet<SchemaType, NameType, IndexesType, C>(
         collection,
         new FaunaMethodCall('paginate', 'cursor', 'count').mergeArguments({
           cursor,
@@ -54,9 +57,9 @@ export class FaunaSet<
     return this;
   }
 
-  public paginate = (count?: number): FaunaPage<Schema, Name, C> => {
-    type DocType = NonNullable<FaunaDocument<Schema, Name, C>['fqlType']>;
-    const page = new FaunaPage<Schema, Name, C>(
+  public paginate = (count?: number): FaunaPage<Schema, Name, Indexes, C> => {
+    type DocType = NonNullable<FaunaDocument<Schema, Name, Indexes, C>['fqlType']>;
+    const page = new FaunaPage<Schema, Name, Indexes, C>(
       this.collection,
       typeof count === 'number'
         ? new FaunaMethodCall<DocType[]>('paginate', 'count').mergeArguments({
@@ -67,16 +70,16 @@ export class FaunaSet<
     return page.link(this);
   };
 
-  public first = (): FaunaDocument<Schema, Name, C> => {
-    const doc = new FaunaDocument<Schema, Name, C>(
+  public first = (): FaunaDocument<Schema, Name, Indexes, C> => {
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('first')
     );
     return doc.link(this);
   };
 
-  public last = (): FaunaDocument<Schema, Name, C> => {
-    const doc = new FaunaDocument<Schema, Name, C>(
+  public last = (): FaunaDocument<Schema, Name, Indexes, C> => {
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('last')
     );
@@ -103,24 +106,24 @@ export class FaunaSet<
     return call.link(this);
   };
 
-  public distinct = (): FaunaSet<Schema, Name, C> => {
-    const set = new FaunaSet<Schema, Name, C>(
+  public distinct = (): FaunaSet<Schema, Name, Indexes, C> => {
+    const set = new FaunaSet<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('distinct')
     );
     return set.link(this);
   };
 
-  public firstWhere = (body: string): FaunaDocument<Schema, Name, C> => {
-    const doc = new FaunaDocument<Schema, Name, C>(
+  public firstWhere = (body: string): FaunaDocument<Schema, Name, Indexes, C> => {
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('firstWhere', body)
     );
     return doc.link(this);
   };
 
-  public lastWhere = (body: string): FaunaDocument<Schema, Name, C> => {
-    const doc = new FaunaDocument<Schema, Name, C>(
+  public lastWhere = (body: string): FaunaDocument<Schema, Name, Indexes, C> => {
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('lastWhere', body)
     );
@@ -129,8 +132,8 @@ export class FaunaSet<
 
   public map = <T extends QueryValue>(
     body: string
-  ): FaunaSet<Schema, Name, Collection<Schema, Name>, T> => {
-    const set = new FaunaSet<Schema, Name, Collection<Schema, Name>, T>(
+  ): FaunaSet<Schema, Name, Indexes, C, T> => {
+    const set = new FaunaSet<Schema, Name, Indexes, C, T>(
       this.collection,
       new FaunaMethodCall('map', body)
     );
@@ -139,16 +142,16 @@ export class FaunaSet<
 
   public order = (
     ordering: string
-  ): FaunaSet<Schema, Name, Collection<Schema, Name>> => {
-    const set = new FaunaSet<Schema, Name, Collection<Schema, Name>>(
+  ): FaunaSet<Schema, Name, Indexes, C> => {
+    const set = new FaunaSet<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('order', ordering)
     );
     return set.link(this);
   };
 
-  public reverse = (): FaunaSet<Schema, Name, Collection<Schema, Name>> => {
-    const set = new FaunaSet<Schema, Name, Collection<Schema, Name>>(
+  public reverse = (): FaunaSet<Schema, Name, Indexes, C> => {
+    const set = new FaunaSet<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('reverse')
     );
@@ -157,8 +160,8 @@ export class FaunaSet<
 
   public where = (
     body: string
-  ): FaunaSet<Schema, Name, Collection<Schema, Name>> => {
-    const set = new FaunaSet<Schema, Name, Collection<Schema, Name>>(
+  ): FaunaSet<Schema, Name, Indexes, C> => {
+    const set = new FaunaSet<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('where', body)
     );

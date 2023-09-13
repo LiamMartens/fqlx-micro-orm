@@ -1,24 +1,25 @@
 import { TypeOf, ZodObject, ZodRawShape } from 'zod';
-import { Collection } from './Collection.js';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { QueryValueObject } from 'fauna';
 import { FaunaNullDocument } from './FaunaNullDocument.js';
 import { KeysOfItems, Projection } from './Projection.js';
+import type { Collection, IndexesDefinition } from './Collection.js';
 
 export class FaunaDocument<
   Schema extends ZodObject<ZodRawShape>,
   Name extends string,
-  C extends Collection<Schema, Name>
+  Indexes extends IndexesDefinition,
+  C extends Collection<Schema, Name, Indexes>
 > extends FQLEntry {
   public collection: C;
   public operation: FaunaMethodCall<
-    FaunaDocument<Schema, Name, C>['fqlType'] | null
+    FaunaDocument<Schema, Name, Indexes, C>['fqlType'] | null
   >;
 
   constructor(
     collection: C,
-    operation: FaunaMethodCall<FaunaDocument<Schema, Name, C>['fqlType'] | null>
+    operation: FaunaMethodCall<FaunaDocument<Schema, Name, Indexes, C>['fqlType'] | null>
   ) {
     super();
     this.collection = collection;
@@ -32,7 +33,7 @@ export class FaunaDocument<
   public forceOperation = () => {
     this.operation.forced();
     return this;
-  }
+  };
 
   public exists = (): FaunaMethodCall<boolean> => {
     const call = new FaunaMethodCall<boolean>('exists');
@@ -49,9 +50,9 @@ export class FaunaDocument<
 
   public replace = <K extends string = 'data'>(data: {
     [key in K]: TypeOf<Schema>;
-  }): FaunaDocument<Schema, Name, C> => {
+  }): FaunaDocument<Schema, Name, Indexes, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument<Schema, Name, C>(
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('replace', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
@@ -62,9 +63,9 @@ export class FaunaDocument<
 
   public replaceData = <K extends string = 'data'>(data: {
     [key in K]: TypeOf<Schema>;
-  }): FaunaDocument<Schema, Name, C> => {
+  }): FaunaDocument<Schema, Name, Indexes, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument<Schema, Name, C>(
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('replaceData', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
@@ -75,9 +76,9 @@ export class FaunaDocument<
 
   public update = <K extends string = 'data'>(data: {
     [key in K]: Partial<TypeOf<Schema>>;
-  }): FaunaDocument<Schema, Name, C> => {
+  }): FaunaDocument<Schema, Name, Indexes, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument<Schema, Name, C>(
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('update', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
@@ -88,9 +89,9 @@ export class FaunaDocument<
 
   public updateData = <K extends string = 'data'>(data: {
     [key in K]: Partial<TypeOf<Schema>>;
-  }): FaunaDocument<Schema, Name, C> => {
+  }): FaunaDocument<Schema, Name, Indexes, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument<Schema, Name, C>(
+    const doc = new FaunaDocument<Schema, Name, Indexes, C>(
       this.collection,
       new FaunaMethodCall('replaceData', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
