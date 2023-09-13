@@ -90,7 +90,7 @@ export class FaunaDocument<
     [key in K]: Partial<TypeOf<Schema>>;
   }): FaunaDocument<Schema, Name, C> => {
     const variableKey = Object.keys(data)[0] as K;
-    const doc = new FaunaDocument(
+    const doc = new FaunaDocument<Schema, Name, C>(
       this.collection,
       new FaunaMethodCall('replaceData', variableKey).mergeArguments({
         [variableKey]: data[variableKey],
