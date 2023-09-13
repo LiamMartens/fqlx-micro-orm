@@ -46,17 +46,16 @@ export abstract class Collection<
   }
 
   public get completeSchema(): ZodObject<
-    objectUtil.extendShape<DocumentSchema<true, Name>['shape'], Schema['shape']>,
-    Schema['_def']['unknownKeys'],
-    Schema['_def']['catchall']
+    objectUtil.MergeShapes<DocumentSchema<true, Name>['shape'], Schema['shape']>
   > {
     const base: DocumentSchema<true, Name> = documentSchemaFactory<Name>(
       this.name
     );
-    return base.merge(this.schema) as ZodObject<
-      objectUtil.extendShape<DocumentSchema<true, Name>['shape'], Schema['shape']>,
-      Schema['_def']['unknownKeys'],
-      Schema['_def']['catchall']
+    return base.extend(this.schema.shape) as ZodObject<
+      objectUtil.MergeShapes<
+        DocumentSchema<true, Name>['shape'],
+        Schema['shape']
+      >
     >;
   }
 
