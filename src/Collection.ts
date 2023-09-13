@@ -46,7 +46,7 @@ export abstract class Collection<
   }
 
   public get completeSchema() {
-    const result = documentSchemaFactory<Name>(this.name).merge(this.schema);
+    const result = documentSchemaFactory<Name>(this.name).extend(this.schema.shape);
     return result;
   }
 
