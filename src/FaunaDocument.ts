@@ -1,7 +1,7 @@
 import { TypeOf, ZodObject, ZodRawShape } from 'zod';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
-import { QueryValueObject } from 'fauna';
+import { QueryValueObject, TimeStub } from 'fauna';
 import { FaunaNullDocument } from './FaunaNullDocument.js';
 import { KeysOfItems, Projection } from './Projection.js';
 import type { Collection, IndexesDefinition } from './Collection.js';
@@ -75,7 +75,9 @@ export class FaunaDocument<
   };
 
   public update = <K extends string = 'data'>(data: {
-    [key in K]: Partial<TypeOf<Schema>>;
+    [key in K]: Partial<TypeOf<Schema>> & {
+      ttl?: string | TimeStub;
+    };
   }): FaunaDocument<Schema, Name, Indexes, C> => {
     const variableKey = Object.keys(data)[0] as K;
     const doc = new FaunaDocument<Schema, Name, Indexes, C>(
