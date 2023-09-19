@@ -27,12 +27,13 @@ export type ExtractRefCollName<T> = T extends { coll: { name: infer Name } }
 export class Projection<
   In extends ProjectionValue,
   Keys extends KeysOfItems<In> = KeysOfItems<In>,
-  Subprojections extends Record<string, any> = {}
+  Subprojections extends Record<string, any> = {},
+  IsSetProjection extends boolean = false
 > extends FQLEntry {
   constructor(
     public pick: Keys[],
     public path: string | null = null,
-    public subprojections?: Record<string, string | Projection<any, any, any>>
+    public subprojections?: Record<string, string | Projection<any, any, any, false>>
   ) {
     super();
   }
@@ -62,7 +63,7 @@ export class Projection<
     key: K,
     path: Subkey
   ): Projection<In, Keys, MergedSubprojections> => {
-    const proj = new Projection<In, Keys, MergedSubprojections>(
+    const proj = new Projection<In, Keys, MergedSubprojections, IsSetProjection>(
       this.pick,
       this.path,
       {
@@ -106,8 +107,8 @@ export class Projection<
     path: Subkey,
     keys: PickKeys[],
     collection: C
-  ): Projection<In, Keys, MergedSubprojections> => {
-    const proj = new Projection<In, Keys, MergedSubprojections>(
+  ): Projection<In, Keys, MergedSubprojections, IsSetProjection> => {
+    const proj = new Projection<In, Keys, MergedSubprojections, IsSetProjection>(
       this.pick,
       this.path,
       {
@@ -152,8 +153,8 @@ export class Projection<
     key: K,
     path: Subkey,
     pick: PickKeys[]
-  ): Projection<In, Keys, MergedSubprojections> => {
-    const proj = new Projection<In, Keys, MergedSubprojections>(
+  ): Projection<In, Keys, MergedSubprojections, IsSetProjection> => {
+    const proj = new Projection<In, Keys, MergedSubprojections, IsSetProjection>(
       this.pick,
       this.path,
       {

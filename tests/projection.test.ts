@@ -1,7 +1,6 @@
 import z, { TypeOf } from 'zod';
 import { expect, test } from 'bun:test';
 import { Collection } from '../src/Collection.js';
-import { FaunaSet } from '../src/FaunaSet.js';
 import { documentReferenceSchemaFactory } from 'fauna-x-schemas';
 import { Projection } from '../src/Projection.js';
 

@@ -169,7 +169,7 @@ export class FaunaSet<
   };
 
   public project = <K extends KeysOfItems<T>>(pick: K[]): Projection<T[], K, {}> => {
-    return new Projection<T[], K, {}>(pick).link(this);
+    return new Projection<T[], K, {}, true>(pick).link(this);
   };
 
   public toFQL(): [string, QueryValueObject] {
