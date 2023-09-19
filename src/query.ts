@@ -14,8 +14,8 @@ export function query<T extends FQLEntry>(
     : T extends Projection<infer In, infer Keys, infer Subp, infer IsSet>
     ? IsSet extends true
       ? { data: T['fqlType']; after?: string }
-      : T
-    : T;
+      : T['fqlType']
+    : T['fqlType']
   const actualValue =
     entry instanceof FaunaSet
       ? new FaunaPage(entry.collection).link(entry)
