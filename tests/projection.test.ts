@@ -95,6 +95,33 @@ test('Resolved projection', () => {
   const test: TestType = true;
 });
 
+test('Resolved set projection', () => {
+  const collection = new PersonCollection();
+  const user = collection
+    .all()
+    .project(['firstName', 'lastName'])
+    .resolve('children', 'children', ['firstName', 'lastName'], collection);
+
+  expect(user.toFQL()).toEqual([
+    `Person.all(){firstName,lastName,children:.children {firstName,lastName}}`,
+    {},
+  ]);
+
+  type TestType = typeof user.fqlType extends
+    | {
+        firstName: string;
+        lastName: string;
+        children: ({
+          firstName: string;
+          lastName: string;
+        } | null)[]
+      }[]
+    | null
+    ? true
+    : never;
+  const test: TestType = true;
+});
+
 test('Set projection', () => {
   const collection = new PersonCollection();
   const user = collection.all().project(['firstName', 'lastName']);

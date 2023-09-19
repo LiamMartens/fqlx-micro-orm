@@ -10,12 +10,15 @@ export type KeysOfItems<T> = T extends Array<infer V> ? keyof V : keyof T;
 export type DeepKeysOfItems<T> = DeepKey<ActualItemType<T>>;
 export type PickFromProjectionValue<
   T extends ProjectionValue,
-  K extends KeysOfItems<T>
+  K extends KeysOfItems<T>,
+  Extensions extends Record<string, any>
 > = T extends Array<any>
-  ? Pick<T[number], K>[]
+  ? (Pick<T[number], K> & { [K in keyof Extensions]: Extensions[K] })[]
   : T extends NonNullable<T>
-  ? Pick<T, K>
-  : Pick<NonNullable<T>, K> | null;
+  ? Pick<T, K> & { [K in keyof Extensions]: Extensions[K] }
+  :
+      | (Pick<NonNullable<T>, K> & { [K in keyof Extensions]: Extensions[K] })
+      | null;
 export type OptionalIf<T, V> = T extends NonNullable<T> ? V : V | null;
 export type ArrayIf<T, V> = T extends Array<any> ? V[] : V;
 export type ExtractRefCollName<T> = T extends { coll: { name: infer Name } }
@@ -33,16 +36,17 @@ export class Projection<
   constructor(
     public pick: Keys[],
     public path: string | null = null,
-    public subprojections?: Record<string, string | Projection<any, any, any, false>>
+    public subprojections?: Record<
+      string,
+      string | Projection<any, any, any, false>
+    >
   ) {
     super();
   }
 
   get fqlType(): OptionalIf<
     In,
-    PickFromProjectionValue<In, Keys> & {
-      [K in keyof Subprojections]: Subprojections[K];
-    }
+    PickFromProjectionValue<In, Keys, Subprojections>
   > {
     throw new Error('Only used for typing');
   }
@@ -63,13 +67,14 @@ export class Projection<
     key: K,
     path: Subkey
   ): Projection<In, Keys, MergedSubprojections> => {
-    const proj = new Projection<In, Keys, MergedSubprojections, IsSetProjection>(
-      this.pick,
-      this.path,
-      {
-        [key]: `.${path}`,
-      }
-    );
+    const proj = new Projection<
+      In,
+      Keys,
+      MergedSubprojections,
+      IsSetProjection
+    >(this.pick, this.path, {
+      [key]: `.${path}`,
+    });
 
     if (this.chain.length === 0) return proj;
     return proj.link(this.chain[this.chain.length - 1]);
@@ -108,13 +113,14 @@ export class Projection<
     keys: PickKeys[],
     collection: C
   ): Projection<In, Keys, MergedSubprojections, IsSetProjection> => {
-    const proj = new Projection<In, Keys, MergedSubprojections, IsSetProjection>(
-      this.pick,
-      this.path,
-      {
-        [key]: `.${path} {${keys.join(',')}}`,
-      }
-    );
+    const proj = new Projection<
+      In,
+      Keys,
+      MergedSubprojections,
+      IsSetProjection
+    >(this.pick, this.path, {
+      [key]: `.${path} {${keys.join(',')}}`,
+    });
 
     if (this.chain.length === 0) return proj;
     return proj.link(this.chain[this.chain.length - 1]);
@@ -154,13 +160,14 @@ export class Projection<
     path: Subkey,
     pick: PickKeys[]
   ): Projection<In, Keys, MergedSubprojections, IsSetProjection> => {
-    const proj = new Projection<In, Keys, MergedSubprojections, IsSetProjection>(
-      this.pick,
-      this.path,
-      {
-        [key]: new Projection<NormalSelectedValue, PickKeys, {}>(pick, path),
-      }
-    );
+    const proj = new Projection<
+      In,
+      Keys,
+      MergedSubprojections,
+      IsSetProjection
+    >(this.pick, this.path, {
+      [key]: new Projection<NormalSelectedValue, PickKeys, {}>(pick, path),
+    });
 
     if (this.chain.length === 0) return proj;
     return proj.link(this.chain[this.chain.length - 1]);
