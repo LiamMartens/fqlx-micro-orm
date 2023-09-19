@@ -168,7 +168,7 @@ export class FaunaSet<
     return set.link(this);
   };
 
-  public project = <K extends KeysOfItems<T>>(pick: K[]): Projection<T[], K, {}> => {
+  public project = <K extends KeysOfItems<T>>(pick: K[]): Projection<T[], K, {}, true> => {
     return new Projection<T[], K, {}, true>(pick).link(this);
   };
 
