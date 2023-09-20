@@ -3,22 +3,17 @@ import { Collection } from './Collection.js';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { QueryValueObject } from 'fauna';
+import { InferCollectionName } from './type-utils/CollectionInfer.js';
 
 export class FaunaNullDocument<
-  Schema extends ZodObject<ZodRawShape>,
-  Name extends string,
-  C extends Collection<Schema, Name>
+  C extends Collection<any, any>
 > extends FQLEntry {
   public collection: C;
-  public operation: FaunaMethodCall<
-    FaunaNullDocument<Schema, Name, C>['fqlType'] | null
-  >;
+  public operation: FaunaMethodCall<FaunaNullDocument<C>['fqlType'] | null>;
 
   constructor(
     collection: C,
-    operation: FaunaMethodCall<
-      FaunaNullDocument<Schema, Name, C>['fqlType'] | null
-    >
+    operation: FaunaMethodCall<FaunaNullDocument<C>['fqlType'] | null>
   ) {
     super();
     this.collection = collection;
@@ -26,7 +21,7 @@ export class FaunaNullDocument<
   }
 
   get fqlType(): {
-    ref: { coll: { name: Name } };
+    ref: { coll: { name: InferCollectionName<C> } };
     cause: string;
   } | null {
     throw new Error('Only for typing');

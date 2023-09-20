@@ -9,13 +9,13 @@ export function query<T extends FQLEntry>(
   entry: T,
   options?: QueryOptions
 ) {
-  type ValueType = T extends FaunaSet<infer S, infer N, infer I, infer C>
-    ? FaunaPage<S, N, I, C, T['fqlType'][number]>['fqlType']
+  type ValueType = T extends FaunaSet<infer C>
+    ? FaunaPage<C, T['fqlType'][number]>['fqlType']
     : T extends Projection<infer In, infer Keys, infer Subp, infer IsSet>
     ? IsSet extends true
       ? { data: T['fqlType']; after?: string }
       : T['fqlType']
-    : T['fqlType']
+    : T['fqlType'];
   const actualValue =
     entry instanceof FaunaSet
       ? new FaunaPage(entry.collection).link(entry)

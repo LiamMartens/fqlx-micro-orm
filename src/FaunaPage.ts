@@ -5,13 +5,15 @@ import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { FaunaDocument } from './FaunaDocument.js';
 import { QueryValue, QueryValueObject } from 'fauna';
 import { KeysOfItems, Projection } from './Projection.js';
+import {
+  InferCollectionIndexes,
+  InferCollectionName,
+  InferCollectionSchema,
+} from './type-utils/CollectionInfer.js';
 
 export class FaunaPage<
-  Schema extends ZodObject<ZodRawShape>,
-  Name extends string,
-  Indexes extends IndexesDefinition,
-  C extends Collection<Schema, Name, Indexes>,
-  T extends QueryValue = NonNullable<FaunaDocument<Schema, Name, Indexes, C>['fqlType']>
+  C extends Collection<any, any, any>,
+  T extends QueryValue = NonNullable<FaunaDocument<C>['fqlType']>
 > extends FQLEntry {
   public collection: C;
   public operation?: FaunaMethodCall<T[]>;
@@ -32,7 +34,7 @@ export class FaunaPage<
   public forceOperation = () => {
     this.operation?.forced();
     return this;
-  }
+  };
 
   public project = <K extends KeysOfItems<this['fqlType']>>(
     pick: K[]

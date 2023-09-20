@@ -5,28 +5,23 @@ import { QueryValue, QueryValueObject, TimeStub } from 'fauna';
 import { FaunaSet } from './FaunaSet.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { FaunaDocument } from './FaunaDocument.js';
+import { InferCollectionSchema } from './type-utils/CollectionInfer.js';
 
 export type IndexesDefinition = Record<string, QueryValue[]>;
 
-export type ByIdFn<
-  Schema extends ZodObject<ZodRawShape>,
-  Name extends string,
-  Indexes extends IndexesDefinition,
-  C extends Collection<Schema, Name, Indexes>
-> = (id: string | number) => FaunaDocument<Schema, Name, Indexes, C>;
+export type ByIdFn<C extends Collection<any, any, any>> = (
+  id: string | number
+) => FaunaDocument<C>;
 
 export type CreateFn<
-  Schema extends ZodObject<ZodRawShape>,
-  Name extends string,
-  Indexes extends IndexesDefinition,
   K extends string,
-  C extends Collection<Schema, Name, Indexes>
+  C extends Collection<any, any, any>
 > = (data: {
-  [key in K]: TypeOf<Schema> & {
+  [key in K]: TypeOf<InferCollectionSchema<C>> & {
     id?: number;
     ttl?: string | TimeStub;
   };
-}) => FaunaDocument<Schema, Name, Indexes, C>;
+}) => FaunaDocument<C>;
 
 export abstract class Collection<
   Schema extends ZodObject<ZodRawShape>,
@@ -64,18 +59,13 @@ export abstract class Collection<
     return [`${superQuery}${this.name}`, superArgs];
   };
 
-  public all = (): FaunaSet<Schema, Name, Indexes, typeof this> => {
-    const set = new FaunaSet<Schema, Name, Indexes, typeof this>(
-      this,
-      new FaunaMethodCall('all')
-    );
+  public all = (): FaunaSet<typeof this> => {
+    const set = new FaunaSet<typeof this>(this, new FaunaMethodCall('all'));
     return set.link(this);
   };
 
-  public where = (
-    body: string
-  ): FaunaSet<Schema, Name, Indexes, typeof this> => {
-    const set = new FaunaSet<Schema, Name, Indexes, typeof this>(
+  public where = (body: string): FaunaSet<typeof this> => {
+    const set = new FaunaSet<typeof this>(
       this,
       new FaunaMethodCall('where', body)
     );
@@ -85,26 +75,24 @@ export abstract class Collection<
   public index = <T extends keyof Indexes>(
     name: T extends string ? T : never,
     ...args: Indexes[T]
-  ): FaunaSet<Schema, Name, Indexes, typeof this> => {
-    const set = new FaunaSet<Schema, Name, Indexes, typeof this>(
+  ): FaunaSet<typeof this> => {
+    const set = new FaunaSet<typeof this>(
       this,
       new FaunaMethodCall(name, ...args)
     );
     return set.link(this);
   };
 
-  public firstWhere = (
-    body: string
-  ): FaunaDocument<Schema, Name, Indexes, typeof this> => {
-    const doc = new FaunaDocument<Schema, Name, Indexes, typeof this>(
+  public firstWhere = (body: string): FaunaDocument<typeof this> => {
+    const doc = new FaunaDocument<typeof this>(
       this,
       new FaunaMethodCall('firstWhere', body)
     );
     return doc.link(this);
   };
 
-  public byId: ByIdFn<Schema, Name, Indexes, typeof this> = (id) => {
-    const set = new FaunaDocument<Schema, Name, Indexes, typeof this>(
+  public byId: ByIdFn<typeof this> = (id) => {
+    const set = new FaunaDocument<typeof this>(
       this,
       new FaunaMethodCall(
         'byId',
@@ -119,7 +107,7 @@ export abstract class Collection<
       id?: number;
       ttl?: string | TimeStub;
     };
-  }): ReturnType<CreateFn<Schema, Name, Indexes, K, typeof this>> => {
+  }): ReturnType<CreateFn<K, typeof this>> => {
     const variableKey = Object.keys(data)[0] as K;
     const documentData = data[variableKey];
     const ttlValue =
@@ -131,7 +119,7 @@ export abstract class Collection<
       documentData,
       ttlValue ? { ttl: ttlValue } : {}
     );
-    const doc = new FaunaDocument<Schema, Name, Indexes, typeof this>(
+    const doc = new FaunaDocument<typeof this>(
       this,
       new FaunaMethodCall('create', variableKey).mergeArguments({
         [variableKey]: mergedArgs,
