@@ -74,7 +74,7 @@ export abstract class Collection<
 
   public index = <T extends keyof Indexes>(
     name: T extends string ? T : never,
-    ...args: Indexes[T]
+    ...args: Indexes[T] | string[] // always allow string to be able to use variables
   ): FaunaSet<typeof this> => {
     const set = new FaunaSet<typeof this>(
       this,

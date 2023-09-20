@@ -1,15 +1,9 @@
-import { ZodObject, ZodRawShape, TypeOf } from 'zod';
-import { Collection, IndexesDefinition } from './Collection.js';
+import { Collection } from './Collection.js';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { FaunaDocument } from './FaunaDocument.js';
 import { QueryValue, QueryValueObject } from 'fauna';
 import { KeysOfItems, Projection } from './Projection.js';
-import {
-  InferCollectionIndexes,
-  InferCollectionName,
-  InferCollectionSchema,
-} from './type-utils/CollectionInfer.js';
 
 export class FaunaPage<
   C extends Collection<any, any, any>,
