@@ -1,16 +1,12 @@
-import { ZodObject, ZodRawShape } from 'zod';
+import { TypeOf, ZodObject, ZodRawShape } from 'zod';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
 import { FaunaDocument } from './FaunaDocument.js';
 import { QueryValue, QueryValueObject } from 'fauna';
 import { KeysOfItems, Projection } from './Projection.js';
 import { FaunaPage } from './FaunaPage.js';
-import {
-  InferCollectionIndexes,
-  InferCollectionName,
-  InferCollectionSchema,
-} from './type-utils/CollectionInfer.js';
-import type { Collection, IndexesDefinition } from './Collection.js';
+import type { Collection } from './Collection.js';
+import { FaunaArray } from './FaunaArray.js';
 
 export class FaunaSet<
   C extends Collection<any, any, any>,
@@ -28,9 +24,6 @@ export class FaunaSet<
     cursor: string,
     count: number
   ): FaunaPage<C> {
-    type SchemaType = InferCollectionSchema<C>;
-    type NameType = InferCollectionName<C>;
-    type IndexesType = InferCollectionIndexes<C>;
     const page = new FaunaPage<C>(collection);
     return page.link(
       new FaunaSet<C>(
@@ -156,6 +149,11 @@ export class FaunaSet<
       this.collection,
       new FaunaMethodCall('where', body)
     );
+    return set.link(this);
+  };
+
+  public toArray = (): FaunaArray<TypeOf<C['completeSchema']>> => {
+    const set = new FaunaArray<TypeOf<C['completeSchema']>>(new FaunaMethodCall('toArray'));
     return set.link(this);
   };
 

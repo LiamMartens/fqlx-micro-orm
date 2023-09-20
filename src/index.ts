@@ -5,4 +5,5 @@ export * from './FaunaDocument.js';
 export * from './FaunaNullDocument.js';
 export * from './Projection.js';
 export * from './FaunaPage.js';
+export * from './FaunaArray.js';
 export * from './query.js';
