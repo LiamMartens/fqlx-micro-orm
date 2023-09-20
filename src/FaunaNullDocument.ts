@@ -27,6 +27,11 @@ export class FaunaNullDocument<
     throw new Error('Only for typing');
   }
 
+  public forceOperation = () => {
+    this.operation.forced();
+    return this;
+  };
+
   public toFQL(): [string, QueryValueObject] {
     const [superQuery, superArgs] = super.toFQL();
     const [opQuery, opArgs] = this.operation.toFQL();
