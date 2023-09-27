@@ -1,7 +1,7 @@
 {
   "name": "fqlx-micro-orm",
   "type": "module",
-  "version": "2.3.1",
+  "version": "2.3.2",
   "description": "FQLx Micro ORM for a more type-safe way of interacting with the FQLx APIs",
   "types": "./lib/index.d.ts",
   "module": "./lib/index.js",
