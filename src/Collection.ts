@@ -96,7 +96,7 @@ export abstract class Collection<
       this,
       new FaunaMethodCall(
         'byId',
-        JSON.stringify(String(id).replace(/[^0-9]/, ''))
+        String(id).replace(/[^0-9]/, '')
       )
     );
     return set.link(this);
