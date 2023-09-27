@@ -31,7 +31,7 @@ test('Simple projection', () => {
   const collection = new PersonCollection();
   const user = collection.byId(123).project(['firstName', 'lastName']).nest('address', 'address', ['street']);
 
-  expect(user.toFQL()).toEqual([`Person.byId(123){firstName,lastName,address:.address{street}}`, {}]);
+  expect(user.toFQL()).toEqual([`Person.byId("123"){firstName,lastName,address:.address{street}}`, {}]);
 
   type TestType = typeof user.fqlType extends
     | {
@@ -52,7 +52,7 @@ test('Alias projection', () => {
     .alias('familyName', 'lastName');
 
   expect(user.toFQL()).toEqual([
-    `Person.byId(123){firstName,lastName,familyName:.lastName}`,
+    `Person.byId("123"){firstName,lastName,familyName:.lastName}`,
     {},
   ]);
 
@@ -76,7 +76,7 @@ test('Resolved projection', () => {
     .resolve('children', 'children', ['firstName', 'lastName'], collection);
 
   expect(user.toFQL()).toEqual([
-    `Person.byId(123){firstName,lastName,children:.children {firstName,lastName}}`,
+    `Person.byId("123"){firstName,lastName,children:.children {firstName,lastName}}`,
     {},
   ]);
 
