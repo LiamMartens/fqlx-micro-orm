@@ -1,14 +1,15 @@
 import { TypeOf } from 'zod';
 import { FQLEntry } from './FQLEntry.js';
 import { FaunaMethodCall } from './FaunaMethodCall.js';
-import { QueryValueObject, TimeStub } from 'fauna';
+import { NullDocument, QueryValueObject, TimeStub } from 'fauna';
 import { FaunaNullDocument } from './FaunaNullDocument.js';
 import { KeysOfItems, Projection } from './Projection.js';
 import type { Collection } from './Collection.js';
 import { InferCollectionSchema } from './type-utils/CollectionInfer.js';
 
 export class FaunaDocument<
-  C extends Collection<any, any, any>
+  C extends Collection<any, any, any>,
+  AlwaysReturn extends boolean = false
 > extends FQLEntry {
   public collection: C;
   public operation: FaunaMethodCall<FaunaDocument<C>['fqlType'] | null>;
@@ -22,7 +23,9 @@ export class FaunaDocument<
     this.operation = operation;
   }
 
-  get fqlType(): TypeOf<C['completeSchema']> | null {
+  get fqlType():
+    | TypeOf<C['completeSchema']>
+    | (AlwaysReturn extends true ? NullDocument : null) {
     throw new Error('Only for typing');
   }
 

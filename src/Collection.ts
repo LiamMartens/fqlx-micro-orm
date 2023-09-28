@@ -11,7 +11,7 @@ export type IndexesDefinition = Record<string, QueryValue[]>;
 
 export type ByIdFn<C extends Collection<any, any, any>> = (
   id: string | number
-) => FaunaDocument<C>;
+) => FaunaDocument<C, true>;
 
 export type CreateFn<
   K extends string,
@@ -92,7 +92,7 @@ export abstract class Collection<
   };
 
   public byId: ByIdFn<typeof this> = (id) => {
-    const set = new FaunaDocument<typeof this>(
+    const set = new FaunaDocument<typeof this, true>(
       this,
       new FaunaMethodCall(
         'byId',
