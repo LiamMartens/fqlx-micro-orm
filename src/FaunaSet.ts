@@ -19,14 +19,14 @@ export class FaunaSet<
     throw new Error('Only used for typing');
   }
 
-  public static paginate<C extends Collection<any, any, any>>(
+  public static paginate<C extends Collection<any, any, any>, T extends QueryValue>(
     collection: C,
     cursor: string,
     count: number
-  ): FaunaPage<C> {
-    const page = new FaunaPage<C>(collection);
+  ): FaunaPage<C, T> {
+    const page = new FaunaPage<C, T>(collection);
     return page.link(
-      new FaunaSet<C>(
+      new FaunaSet<C, T>(
         collection,
         new FaunaMethodCall('paginate', 'cursor', 'count').mergeArguments({
           cursor,
